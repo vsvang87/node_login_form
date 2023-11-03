@@ -2,9 +2,8 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const router = express.Router();
 const User = require("../models/Users");
-const verifyJWT = require("../middleware/verifyJWT");
-const emailValidator = require("email-validator");
-const LocalStrategy = require("passport-local");
+// const verifyJWT = require("../middleware/verifyJWT");
+const jwt = require("jsonwebtoken");
 
 router.get("/", (req, res) => {
   res.render("index");
@@ -20,7 +19,6 @@ router.post("/login", async (req, res) => {
   if (!email || !password) {
     res.status(400).json({ error: "invalid email and password" });
   }
-
   //find user
   try {
     const user = await User.findOne({ email, password });
@@ -41,51 +39,90 @@ router.post("/login", async (req, res) => {
 });
 
 // };
-//verify JWT
-router.get("/jwt-test", verifyJWT.verify, (req, res) => {
-  res.status(200).json(req.user);
-});
+
+//handle errors
+const handleErrors = (err) => {
+  console.log(err.message, err.code);
+  let errors = { email: "", password: "" };
+
+  //check for duplicate
+  if (err.code === 11000) {
+    errors.email = "Email already registered";
+    return errors;
+  }
+  //validate errors
+  if (err.message.includes("user validation failed")) {
+    Object.values(err.errors).forEach(({ properties }) => {
+      errors[properties.path] = properties.message;
+    });
+  }
+  return errors;
+};
+
+//Token will last 2 days
+const maxAge = 2 * 24 * 60 * 60;
+//create JSON Web Token
+const createToken = (id) => {
+  return jwt.sign({ id }, "secret_key", { expiresIn: maxAge });
+};
+
+// router.get("/jwt-test", verifyJWT.verify, (req, res) => {
+//   res.status(200).json(req.user);
+// });
 
 //sign up new user
 router.get("/register", (req, res) => {
   res.render("register");
 });
+
 router.post("/register", async (req, res) => {
   const { email, password } = req.body;
-  //validate email
-  if (emailValidator.validate(!email)) {
-    res.status(400).json({ message: "Invalid email" });
-  }
-
   //check length of password
   if (password.length < 6) {
-    res
-      .status(400)
-      .json({ message: "Password needs to be 6 or more characters" });
+    res.status(400).json({
+      message: "Please enter a valid email or minimum of 6 characters password",
+    });
   }
-
   try {
-    // const salt = await bcrypt.genSalt();
-    // const hashedPassword = await bcrypt.hash(password, salt);
     const user = await User.create({
       email,
       password,
     });
+    const token = createToken(user._id);
+    res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
+    res.status(201).json({ user: user._id });
     console.log(user);
     return res.redirect("load");
-  } catch (error) {
-    res
-      .status(401)
-      .json({ message: "User not successful created", error: error.message });
+  } catch (err) {
+    const errors = handleErrors(err);
+    res.status(401).json({ errors });
+    // res
+    //   .status(401)
+    //   .json({ message: "User not successful created", error: error.message });
   }
 });
 
 router.get("/load", (req, res) => {
   res.render("load");
 });
+
+//logout route
+router.delete("/logout", (req, res) => {
+  if (req.session) {
+    req.session.destroy((err) => {
+      if (err) {
+        res.status(400).send("Unable to logout");
+      } else {
+        res.send("Logout successful");
+      }
+    });
+  } else {
+    res.send("Logout");
+  }
+});
 //JSON web token
-function generateToken(user) {
-  return jwt.sign({ data: user }, tokenSecret, { expiresIn: "24h" });
-}
+// function generateToken(user) {
+//   return jwt.sign({ data: user }, tokenSecret, { expiresIn: "24h" });
+// }
 
 module.exports = router;
