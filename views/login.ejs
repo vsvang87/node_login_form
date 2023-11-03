@@ -6,11 +6,13 @@
     <div class="input-group">
       <label for="email">Email</label>
       <input type="text" id="email" name="email" required />
+      <div class="email-error"></div>
     </div>
 
     <div class="input-group">
       <label for="password">Password</label>
       <input type="password" id="password" name="password" required />
+      <div class="password-error"></div>
     </div>
     <button>Login</button>
   </form>
@@ -18,12 +20,38 @@
 
 <script>
   const form = document.querySelector("form");
+  const emailError = document.querySelector(".email-error");
+  const passwordError = document.querySelector(".password-error");
 
-  form.addEventListener("submit", (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    //reset errors
+    emailError.innerHTML = "";
+    passwordError.innerHTML = "";
+
     //get values
     const email = form.email.value;
     const password = form.password.value;
+
+    try {
+      const result = await fetch("/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+        headers: { "Content-Type": "application/json" },
+      });
+      //check for error
+      const data = result.json();
+      if (data.errors) {
+        emailError.innerHTML = data.errors.email;
+        passwordError.innerHTML = data.errors.password;
+      }
+      //check if user exist in Database
+      if (data.user) {
+        location.assign("load");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   });
 </script>
 <%- include('partials/footer.ejs') -%>

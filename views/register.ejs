@@ -6,10 +6,12 @@
     <div class="input-group">
       <label for="email">Email</label>
       <input type="text" name="email" required />
+      <div class="email-error"></div>
     </div>
     <div class="input-group">
       <label for="password">Password</label>
       <input type="password" name="password" required />
+      <div class="password-error"></div>
     </div>
     <button>Sign Up</button>
   </form>
@@ -17,9 +19,15 @@
 
 <script>
   const form = document.querySelector("form");
+  const emailError = document.querySelector(".email-error");
+  const passwordError = document.querySelector(".password-error");
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    //reset errors
+    emailError.innerHTML = "";
+    passwordError.innerHTML = "";
 
     //get values
     const email = form.email.value;
@@ -32,7 +40,21 @@
         body: JSON.stringify({ email, password }),
         headers: { "Content-Type": "application/json" },
       });
-    } catch (error) {}
+      const data = await result.json();
+      console.log(data);
+      //check if user exist
+      if (data.errors) {
+        emailError.innerHTML = data.errors.email;
+        passwordError.innerHTML = data.errors.password;
+      }
+
+      //redirect user to load page to after register
+      if (data.user) {
+        location.assign("load");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   });
 </script>
 

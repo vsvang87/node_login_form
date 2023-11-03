@@ -2,7 +2,6 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const router = express.Router();
 const User = require("../models/Users");
-// const verifyJWT = require("../middleware/verifyJWT");
 const jwt = require("jsonwebtoken");
 
 router.get("/", (req, res) => {
@@ -16,20 +15,15 @@ router.get("/login", (req, res) => {
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   //checking if email or password is provided
-  if (!email || !password) {
-    res.status(400).json({ error: "invalid email and password" });
-  }
-  //find user
+  // if (!email || !password) {
+  //   res.status(400).json({ error: "invalid email and password" });
+  // }
+
   try {
     const user = await User.findOne({ email, password });
-    if (!user) {
-      res.status(401).json({
-        message: "Incorrect email or password",
-        error: "User not found",
-      });
+    if (user) {
+      res.status(200).json({ user: user._id });
     } else {
-      console.log("Login Successful!");
-      return res.redirect("load");
     }
   } catch (error) {
     res
@@ -51,7 +45,7 @@ const handleErrors = (err) => {
     return errors;
   }
   //validate errors
-  if (err.message.includes("user validation failed")) {
+  if (err.message.includes("User validation failed")) {
     Object.values(err.errors).forEach(({ properties }) => {
       errors[properties.path] = properties.message;
     });
@@ -66,10 +60,6 @@ const createToken = (id) => {
   return jwt.sign({ id }, "secret_key", { expiresIn: maxAge });
 };
 
-// router.get("/jwt-test", verifyJWT.verify, (req, res) => {
-//   res.status(200).json(req.user);
-// });
-
 //sign up new user
 router.get("/register", (req, res) => {
   res.render("register");
@@ -78,11 +68,11 @@ router.get("/register", (req, res) => {
 router.post("/register", async (req, res) => {
   const { email, password } = req.body;
   //check length of password
-  if (password.length < 6) {
-    res.status(400).json({
-      message: "Please enter a valid email or minimum of 6 characters password",
-    });
-  }
+  // if (password.length < 6) {
+  //   res.status(400).json({
+  //     message: "Please enter a valid email or minimum of 6 characters password",
+  //   });
+  // }
   try {
     const user = await User.create({
       email,
@@ -92,7 +82,6 @@ router.post("/register", async (req, res) => {
     res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
     res.status(201).json({ user: user._id });
     console.log(user);
-    return res.redirect("load");
   } catch (err) {
     const errors = handleErrors(err);
     res.status(401).json({ errors });
