@@ -18,10 +18,10 @@ const handleErrors = (err) => {
   let errors = { email: "", password: "" };
 
   //check for duplicate
-  if (err.code === 11000) {
-    errors.email = "Email already registered";
-    return errors;
-  }
+  // if (err.code === 11000) {
+  //   errors.email = "Email already registered";
+  //   return errors;
+  // }
   //validate errors
   if (err.message.includes("User validation failed")) {
     Object.values(err.errors).forEach(({ properties }) => {
@@ -60,17 +60,23 @@ router.post("/register", async (req, res) => {
   //   });
   // }
   try {
-    const user = await User.create({
-      email,
-      password,
-    });
-    const token = createToken(user._id);
-    res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-    res.status(201).json({ user: user._id });
-    console.log(user);
+    //check for duplicates
+    const checkForDupes = await User.findOne({ email });
+    if (checkForDupes) {
+      res.status(400).json({ error });
+    } else {
+      const user = await User.create({
+        email,
+        password,
+      });
+      const token = createToken(user._id);
+      res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
+      res.status(201).json({ user: user._id });
+      console.log(user);
+    }
   } catch (err) {
     const errors = handleErrors(err);
-    res.status(401).json({ errors });
+    res.status(400).json({ errors });
     // res
     //   .status(401)
     //   .json({ message: "User not successful created", error: error.message });

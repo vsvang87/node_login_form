@@ -8,6 +8,7 @@ const userSchema = new Schema({
     type: String,
     required: [true, "Please enter an email"],
     lowercase: true,
+    unique: true,
     validate: [isEmail, "Please enter a valid email"],
     load: {
       title: String,
@@ -21,7 +22,7 @@ const userSchema = new Schema({
   },
 });
 
-//static method to check user for login
+//static method to check user login authentication
 userSchema.statics.login = async function (email, password) {
   const user = await this.findOne({ email });
   if (user) {
