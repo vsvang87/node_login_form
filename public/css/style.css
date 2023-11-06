@@ -40,3 +40,6 @@ nav .navbar .navlinks li a {
     max-width: 1240px;
     margin-inline: auto;
 }
+.container h1 {
+    text-align: center;
+}

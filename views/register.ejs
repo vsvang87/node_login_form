@@ -13,7 +13,9 @@
       <input type="password" name="password" required />
       <div class="password-error"></div>
     </div>
-    <button>Sign Up</button>
+    <div class="input-group">
+      <button>Sign Up</button>
+    </div>
   </form>
 </div>
 
@@ -46,7 +48,6 @@
       if (data.errors) {
         emailError.innerHTML = data.errors.email;
         passwordError.innerHTML = data.errors.password;
-        console.log(emailError, passwordError);
       }
 
       //redirect user to load page to after register
