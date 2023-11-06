@@ -14,7 +14,7 @@
       <input type="password" id="password" name="password" required />
       <div class="password-error"></div>
     </div>
-    <button>Login</button>
+    <button type="submit">Login</button>
   </form>
 </div>
 
@@ -40,14 +40,15 @@
         headers: { "Content-Type": "application/json" },
       });
       //check for error
-      const data = result.json();
+      const data = await result.json();
+      console.log(data);
       if (data.errors) {
         emailError.innerHTML = data.errors.email;
         passwordError.innerHTML = data.errors.password;
       }
       //check if user exist in Database
       if (data.user) {
-        location.assign("load");
+        location.assign("home");
       }
     } catch (error) {
       console.log(error);

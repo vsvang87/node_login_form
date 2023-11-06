@@ -19,8 +19,20 @@ const userSchema = new Schema({
     required: [true, "Please enter a password"],
     minlength: [6, "Minimum length of 6 characters"],
   },
-  refreshToken: String,
 });
+
+//static method to check user for login
+userSchema.statics.login = async function (email, password) {
+  const user = await this.findOne({ email });
+  if (user) {
+    const auth = await bcrypt.compare(password, user.password);
+    if (auth) {
+      return user;
+    }
+    throw Error("incorrect password");
+  }
+  throw Error("incorrect email");
+};
 
 //trigger function before doc saved to Database
 userSchema.pre("save", async function (next) {
