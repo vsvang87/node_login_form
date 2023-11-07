@@ -1,5 +1,11 @@
 
 /*---------Login--------------*/
+section {
+    min-height: 60vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 form {
     display: flex;
     justify-content: center;
@@ -17,14 +23,18 @@ form .input-group {
     width: 100%;
     margin: 1rem 0;
 }
+form .input-group .error {
+    color: red;
+    font-size: .8rem;
+}
 form .input-group input {
-    padding: 0.5rem;
+    padding: 0.8rem 0.4rem;
     border: 1px solid lightgray;
     outline: none;
     border-radius: 5px;
 }
 form .input-group button {
-    padding: 0.5rem;
+    padding: 0.8rem;
     cursor: pointer;
     background: rgb(66, 172, 122);
     color: #fff;

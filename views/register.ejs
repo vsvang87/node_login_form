@@ -1,23 +1,27 @@
 <%- include('partials/head.ejs') -%> <%- include('partials/navbar.ejs') -%>
-<div class="container">
-  <h1>Sign up</h1>
 
-  <form action="/register" method="POST">
-    <div class="input-group">
-      <label for="email">Email</label>
-      <input type="text" name="email" required />
-      <div class="email-error"></div>
+<section class="signup-section">
+  <div class="container">
+    <div class="form-content">
+      <form action="/register" method="POST">
+        <h1>Sign up</h1>
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input type="text" name="email" required />
+          <div class="email-error error"></div>
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" name="password" required />
+          <div class="password-error error"></div>
+        </div>
+        <div class="input-group">
+          <button>Sign Up</button>
+        </div>
+      </form>
     </div>
-    <div class="input-group">
-      <label for="password">Password</label>
-      <input type="password" name="password" required />
-      <div class="password-error"></div>
-    </div>
-    <div class="input-group">
-      <button>Sign Up</button>
-    </div>
-  </form>
-</div>
+  </div>
+</section>
 
 <script>
   const form = document.querySelector("form");

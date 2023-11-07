@@ -1,5 +1,4 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
 const router = express.Router();
 const User = require("../models/Users");
 const jwt = require("jsonwebtoken");
@@ -19,7 +18,7 @@ const handleErrors = (err) => {
 
   //check for duplicate
   if (err.code === 11000) {
-    errors.email = "Email already existed";
+    errors.email = "Email already registered";
     return errors;
   }
   //validate errors
@@ -30,16 +29,16 @@ const handleErrors = (err) => {
   }
   //handle error email Login
   if (err.message === "incorrect email") {
-    errors.email = "email doesn't exist";
+    errors.email = "Email doesn't exist";
   }
   //handle error password login
   if (err.message === "incorrect password") {
-    errors.password = "password is incorrect";
+    errors.password = "Incorrect password";
   }
   return errors;
 };
 
-//Token will last 2 days
+//Token will expire 2 days
 const maxAge = 2 * 24 * 60 * 60;
 //create JSON Web Token
 const createToken = (id) => {
@@ -53,12 +52,7 @@ router.get("/register", (req, res) => {
 
 router.post("/register", async (req, res) => {
   const { email, password } = req.body;
-  //check length of password
-  // if (password.length < 6) {
-  //   res.status(400).json({
-  //     message: "Please enter a valid email or minimum of 6 characters password",
-  //   });
-  // }
+
   try {
     const user = await User.create({
       email,
@@ -93,9 +87,6 @@ router.post("/login", async (req, res) => {
   } catch (err) {
     const errors = handleErrors(err);
     res.status(400).json({ errors });
-    // res
-    //   .status(400)
-    //   .json({ message: "User does not exist", error: error.message });
   }
 });
 

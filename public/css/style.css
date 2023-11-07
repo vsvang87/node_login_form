@@ -19,6 +19,9 @@ nav .navbar .logo a {
     text-decoration: none;
     color: #fff;
 }
+nav .navbar .logo p {
+    color: #fff;
+}
 nav .navbar .navlinks {
     display: flex;
     justify-content: space-between;
@@ -40,6 +43,4 @@ nav .navbar .navlinks li a {
     max-width: 1240px;
     margin-inline: auto;
 }
-.container h1 {
-    text-align: center;
-}
+

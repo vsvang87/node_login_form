@@ -35,7 +35,7 @@ userSchema.statics.login = async function (email, password) {
   throw Error("incorrect email");
 };
 
-//trigger function before doc saved to Database
+//trigger function before document is saved to Database
 userSchema.pre("save", async function (next) {
   const salt = await bcrypt.genSalt(); //Generate Salt
   this.password = await bcrypt.hash(this.password, salt); //Hash Password
